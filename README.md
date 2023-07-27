@@ -1,12 +1,8 @@
 # dependencyhandler
-python dependency handler from @olaf  
-
-made private for now  
-extracted from https://github.com/wolfprint3d/Blender-TechArt-Tools  
-used by style tool  
+python dependency handler for Blender from @olaf  
 
 ### install
 
 ```
-pip install git+https://github.com/readyplayerme/dependencyhandler
+pip install git+https://github.com/readyplayerme/blender-dependencyhandler
 ```
