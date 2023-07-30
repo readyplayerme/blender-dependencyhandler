@@ -1,2 +1,2 @@
-from .batchprocess import *
-from .pipdependencies import *
+from readyplayerme.dependencyhandler.batchprocess import *
+from readyplayerme.dependencyhandler.pipdependencies import *
