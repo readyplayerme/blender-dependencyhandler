@@ -1,36 +1,250 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
-#build-backend = "setuptools.build_meta"
-
-
-[tool.setuptools]
-packages = ["dependencyhandler"]
-
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
-name = "dependencyhandler"
-authors = [
-    {name = "Olaf"},
-]
-description = "handle dependencies"
+name = "readyplayerme.dependencyhandler"
+dynamic = ["version"]
+description = "Ready Player Me dependency handler for Blender."
 readme = "README.md"
-requires-python = ">=3.4"
-keywords = ["dependencies"]
-#license = { file = "LICENSE" }
-classifiers = [
-    "Programming Language :: Python :: 3.7",
+requires-python = "~=3.10.0"
+license = "MIT"
+keywords = ["ready player me", "dependency", "blender"]
+authors = [
+  { name = "Ready Player Me", email = "info@readyplayer.me" },
 ]
-#dynamic = ["dependencies"]
-dependencies = ['importlib-metadata; python_version<"3.7"', "Levenshtein >= 0.20.9"]
-#dynamic = ["version"]
-version = "0.0.1"
+maintainers = [
+  { name = "Olaf Haag", email = "olaf@readyplayer.me" },
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
 
-#[project.optional-dependencies]
-#yaml = ["pyyaml"]
-
-#[project.scripts]
-#my-script = "my_package.module:function"
+[project.optional-dependencies]
+tests = [
+  "pytest",
+]
+dev = [
+  "readyplayerme.dependencyhandler[tests]",
+  "pre-commit",
+]
+devblend = [
+  "readyplayerme.dependencyhandler[dev]",
+  "bpy~=3.6.0"
+]
 
 [project.urls]
-Homepage = "https://github.com/..."
-Source = "https://github.com/..."
+Documentation = "https://github.com/readyplayerme/blender-dependencyhandler#readme"
+Issues = "https://github.com/readyplayerme/blender-dependencyhandler/issues"
+Source = "https://github.com/readyplayerme/blender-dependencyhandler"
+
+[tool.hatch.version]
+path = "src/readyplayerme/dependencyhandler/__about__.py"
+
+[tool.hatch.build]
+include = [
+  "src/readyplayerme/**/*.json",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/readyplayerme"]
+
+[tool.hatch.envs.default]
+python = "3.10"
+dependencies = [
+  "coverage[toml]>=6.5",
+  "pytest",
+]
+features = [
+  "dev",
+]
+post-install-commands = [
+  "install-precommit",
+]
+
+[tool.hatch.envs.default.scripts]
+install-precommit = "pre-commit install"
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.10"]
+
+[tool.hatch.envs.lint]
+detached = true
+dependencies = [
+  "black>=23.7.0",
+  "mypy>=1.4.1",
+  "ruff>=0.0.280",
+  "docstr-coverage>=2.3.0",
+]
+[tool.hatch.envs.lint.scripts]
+typing = "mypy --install-types --non-interactive {args:src/readyplayerme/dependencyhandler tests}"
+style = [
+  "ruff {args:.}",
+  "black --check --diff {args:.}",
+  "docstr-coverage {args:.}",
+]
+fmt = [
+  "black {args:.}",
+  "ruff --fix {args:.}",
+  "style",
+]
+all = [
+  "style",
+  "typing",
+]
+
+[tool.black]
+target-versions = ["py310"]
+line-length = 120
+skip-string-normalization = false
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+select = [
+  "A",
+  "ANN",
+  "ARG",
+  "B",
+  "C",
+  "D",
+  "DTZ",
+  "E",
+  "EM",
+  "ERA",
+  "F",
+  "FBT",
+  "I",
+  "ICN",
+  "ISC",
+  "N",
+  "PLC",
+  "PLE",
+  "PLR",
+  "PLW",
+  "Q",
+  "RUF",
+  "S",
+  "T",
+  "T20",
+  "TID",
+  "UP",
+  "W",
+  "YTT",
+]
+ignore = [
+  # Allow non-abstract empty methods in abstract base classes
+  "B027",
+  # Allow boolean positional values in function calls, like `dict.get(... True)`
+  "FBT003",
+  # Allow try-except-pass & try-except-continue
+  "S110", "S112",
+  # Ignore complexity
+  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  # Allow dynamically typed expressions (typing.Any) in type annotations
+  "ANN401",
+  # Don't require documentation for every function parameter.
+  "D417",
+]
+builtins = ["_"]
+unfixable = [
+  # Don't touch unused imports
+  "F401",
+]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+[tool.ruff.isort]
+known-first-party = ["readyplayerme"]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+
+[tool.ruff.flake8-annotations]
+mypy-init-return = true
+allow-star-arg-any = true
+ignore-fully-untyped = true
+suppress-none-returning = true
+
+[tool.ruff.pycodestyle]
+ignore-overlong-task-comments = true
+
+[tool.ruff.pydocstyle]
+convention = "pep257"
+ignore-decorators = ["typing.overload"]
+
+[tool.ruff.per-file-ignores]
+# Tests can use magic values, assertions, and relative imports
+"tests/**/*" = ["PLR2004", "S101", "TID252"]
+
+
+[tool.mypy]
+follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_reexport = true
+
+# for strict mypy set to true:
+disallow_untyped_defs = false
+
+[tool.coverage.run]
+source_pkgs = ["readyplayerme/dependencyhandler", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/readyplayerme/dependencyhandler/__init__.py",
+  "src/readyplayerme/dependencyhandler/__about__.py",
+]
+
+[tool.coverage.paths]
+readyplayerme_dependencyhandler = ["src/readyplayerme/dependencyhandler", "*/blender-dependencyhandler/src/readyplayerme/dependencyhandler"]
+tests = ["tests", "*/dependencyhandler/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
