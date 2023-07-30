@@ -5,17 +5,16 @@ import importlib
 import importlib.util
 import subprocess
 import sys
-from typing import List, Optional
 
 import pkg_resources
 
-from .interfaces import InstallerInterface, LoaderInterface
+from readyplayerme.dependencyhandler.interfaces import InstallerInterface, LoaderInterface
 
 
 class PipDependency(InstallerInterface, LoaderInterface):
     """Dependency installed via pip from PYPI."""
 
-    def __init__(self, name: str, *args, package: Optional[str] = None, destination: Optional[str] = None, **kwargs):
+    def __init__(self, name: str, *args, package: str | None = None, destination: str | None = None, **kwargs):
         """Initialize the dependency class.
 
         :param name: Module name to import.
@@ -71,7 +70,8 @@ class PipDependency(InstallerInterface, LoaderInterface):
                 creationflags=subprocess.CREATE_NEW_CONSOLE,
             )
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Failed to install dependency '{self.name}'") from e
+            msg = f"Failed to install dependency '{self.name}'"
+            raise RuntimeError(msg) from e
         importlib.invalidate_caches()
 
     def uninstall(self):
@@ -109,7 +109,8 @@ class PipPathDependency(PipDependency):
                 creationflags=subprocess.CREATE_NEW_CONSOLE,
             )
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Failed to install dependency '{self.name}'") from e
+            msg = f"Failed to install dependency '{self.name}'"
+            raise RuntimeError(msg) from e
         importlib.invalidate_caches()
 
 
@@ -119,7 +120,7 @@ class PipTxtDependency(InstallerInterface, LoaderInterface):
     The text has to conform to PEP 508.
     """
 
-    def __init__(self, name: str, path: str, *args, destination: Optional[str] = None, **kwargs):
+    def __init__(self, name: str, path: str, *args, destination: str | None = None, **kwargs):
         """Initialize the dependency class.
 
         :param name: Name of the collection of requirements to import.
@@ -131,13 +132,13 @@ class PipTxtDependency(InstallerInterface, LoaderInterface):
         self.destination = destination
         self._requirements = list(self._parse_requirements(self._read_requirements_file()))
 
-    def _read_requirements_file(self) -> List[str]:
+    def _read_requirements_file(self) -> list[str]:
         """Read the requirements file."""
         with open(self.path) as f:
             # Filter out empty lines and comments.
             return [line for line in f.readlines() if (not line.startswith("#")) and line.strip()]
 
-    def _parse_requirements(self, requirements: List[str]):
+    def _parse_requirements(self, requirements: list[str]):
         """Parse the requirements specs and return requirement objects.
 
         :param requirements: The requirements to parse as strings.
@@ -194,7 +195,8 @@ class PipTxtDependency(InstallerInterface, LoaderInterface):
                 creationflags=subprocess.CREATE_NEW_CONSOLE,
             )
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Failed to install dependencies from '{self.path}'") from e
+            msg = f"Failed to install dependencies from '{self.path}'"
+            raise RuntimeError(msg) from e
         importlib.invalidate_caches()
 
     def uninstall(self):

@@ -1,6 +1,5 @@
 """Abstract classes that document what methods are required of objects returned by classes using these interfaces."""
 from abc import ABC, abstractmethod
-from typing import List
 
 
 class LoaderInterface(ABC):
@@ -68,11 +67,11 @@ class ListerInterface(ABC):
         pass
 
     @abstractmethod
-    def list_installed(self) -> List:
+    def list_installed(self) -> list:
         """List all installed dependencies."""
         pass
 
     @abstractmethod
-    def list_loaded(self) -> List:
+    def list_loaded(self) -> list:
         """List all loaded dependencies."""
         pass
